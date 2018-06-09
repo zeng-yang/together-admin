@@ -1,0 +1,34 @@
+import { axios } from './index'
+import qs from 'qs'
+
+const system = {
+  getFeedBackList () {
+    var url = '/system/feedbacks'
+    return axios.get(url).then(res => {
+      return res
+    })
+    .catch(e => {
+      return Promise.reject(e)
+    })
+  },
+  getAbout () {
+    return axios.get('/system/about').then(res => {
+      return res
+    })
+    .catch(e => {
+      return Promise.reject(e)
+    })
+  },
+  updateAbout (data) {
+    var url = '/system/about?company=' + data.company + '&logo=' + data.log + '&introduction=' + data.introduction
+    return axios.put(url).then(res => {
+      return res
+    })
+    .catch(e => {
+      return Promise.reject(e)
+    })
+  }
+  
+}
+
+export default system
