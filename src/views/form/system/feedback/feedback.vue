@@ -47,11 +47,11 @@ export default {
           key: 'content',
           align: 'center'
         },
-        {
+        /* {
           title: '反馈时间',
           key: 'createTime',
           align: 'center'
-        },
+        }, */
         {
           title: '是否处理',
           key: 'finished',

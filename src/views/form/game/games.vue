@@ -4,7 +4,7 @@
 
 <template>
     <div class="banner">
-        <div class="table-add"><Button @click="handleAddBanner" class="long-add-btn common-button" long>添加游戏</Button></div>
+        <div class="table-add"><Button @click="handleAddGame" class="long-add-btn common-button" long>添加游戏</Button></div>
         <div>
             <Table border :columns="games" :data="gameData"></Table>
         </div>
@@ -39,12 +39,27 @@ export default {
           align: 'center'
         },
         {
+          title: 'logo图',
+          key: 'logo',
+          align: 'center'
+        },
+        {
+          title: '游戏图片',
+          key: 'imgUrl',
+          align: 'center'
+        },
+        {
+          title: '最大匹配人数',
+          key: 'maxMember',
+          align: 'center'
+        },
+        {
           title: '是否热门',
           key: 'hot',
           align: 'center',
           render: (h,params)=>{
             let text=''
-            if(params.hot){text = '热门'}
+            if(params.row.hot){text = '热门'}
             else{text = '不热门'}
             return h('span',{
               props:{}
@@ -57,7 +72,7 @@ export default {
           align: 'center',
           render: (h,params)=>{
             let text=''
-            if(params.deleted){text = '停用'}
+            if(params.row.deleted){text = '停用'}
             else{text = '未停用'}
             return h('span',{
               props:{}
@@ -67,6 +82,7 @@ export default {
         {
           title: '创建时间',
           key: 'createTime',
+          width: 155,
           align: 'center'
         },
         {
@@ -95,6 +111,24 @@ export default {
                   type: 'error',
                   size: 'small'
                 },
+                style: {
+                  marginRight: '5px'
+                },
+                on: {
+                  click: () => {
+                    let argu = { gameId: params.row.id };
+                    this.$router.push({
+                        name: 'games-config',
+                        params: argu
+                    });
+                  }
+                }
+              }, '配置'),
+              h('Button', {
+                props: {
+                  type: 'error',
+                  size: 'small'
+                },
                 on: {
                   click: () => {
                     this.remove(params.index)
@@ -109,16 +143,19 @@ export default {
     }
   },
   methods: {
-    handleAddBanner () {
+    handleAddGame () {
       localStorage.actionType = 'add'
       this.$router.push({
-        name: 'gamesAdd'
+        name: 'games-add'
       })
     },
     edit (index) {
       localStorage.actionType = 'update'
       localStorage.gameId = this.gameData[index].id
       localStorage.gameName = this.gameData[index].name
+      localStorage.imgUrl = this.gameData[index].imgUrl
+      localStorage.logo = this.gameData[index].logo
+      localStorage.maxMember = this.gameData[index].maxMember
       localStorage.gameHot = this.gameData[index].hot
       localStorage.gameDeleted = this.gameData[index].deleted
       localStorage.gameTime = this.gameData[index].createTime
@@ -127,6 +164,7 @@ export default {
       })
     },
     remove (index) {
+      this.$api.deleteGame(this.gameData[index].id)
       this.gameData.splice(index, 1)
     },
     changePage (index) {

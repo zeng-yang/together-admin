@@ -7,7 +7,7 @@
     <div class="feedback">
         <div class="common-div">
             <Card>
-                <Form :model="formFeedback" :label-width="80" >
+                <Form ref="formFeedback" :model="formFeedback" :rules="ruleValidate" :label-width="80" >
                     <Row>
                         <Col span="10">
                             <FormItem label="用户名称">
@@ -27,8 +27,8 @@
                             </FormItem>
                         </Col>
                         <Col span="10">
-                            <FormItem label="处理状态">
-                                <Select v-model="formFeedback.finished">
+                            <FormItem label="处理状态" prop="finished">
+                                <Select v-model="formFeedback.finished?'true':'false'">
                                     <Option value="true">已处理</Option>
                                     <Option value="false">未处理</Option>
                                 </Select>
@@ -57,17 +57,27 @@ export default {
         content: '',
         createTime: '',
         finished: false
-      }
+      },
+      ruleValidate: {
+        company: [{required: true, message: '公司名称不能为空', trigger: 'blur'}],
+        introduction: [{required: true, message: '小程序简介不能为空', trigger: 'blur'}]
+      },
     }
   },
   methods: {
-    handleSaveFeedback () {
-        // this.$api.updateAbout(this.formAbout).then(res => {
-        //     this.$Message.success('Success!')
-                
-        // })
-        this.$router.push({
-            name: 'feedback'
+    handleSaveFeedback (formFeedback) {
+         this.$refs[formFeedback].validate((valid) => {
+            if (valid) {
+                this.$api.updateFeedBack(localStorage.feedbackId).then(res => {
+                    this.$Message.success('Success!')
+                    this.$store.commit('removeTag', this.$route.name);
+                    this.$router.push({
+                        name: 'feedback'
+                    })
+                })
+            } else {
+          this.$Message.error('Fail!')
+        }
         })
     }
   },

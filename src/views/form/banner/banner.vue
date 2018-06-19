@@ -110,6 +110,7 @@ export default {
       })
     },
     remove (index) {
+      this.$api.deleteBanner(this.bannerData[index].id)
       this.bannerData.splice(index, 1)
     },
     getBannerList() {

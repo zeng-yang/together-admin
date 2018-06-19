@@ -9,13 +9,13 @@
             <Form ref="formComment" :model="formComment" :rules="ruleValidate" :label-width="80">
                 <Row>
                     <Col span="10">
-                        <FormItem label="评论用户" prop="userId" >
-                            <Input v-model="formComment.userId" :readonly="true"></Input>
+                        <FormItem label="评论用户" prop="nickname" >
+                            <Input v-model="formComment.nickname" :readonly="true"></Input>
                         </FormItem>
                     </Col>
                     <Col span="10">
-                        <FormItem label="所属文章" prop="articleId">
-                            <Input v-model="formComment.articleId" :readonly="true"></Input>
+                        <FormItem label="所属文章" prop="articleTitle">
+                            <Input v-model="formComment.articleTitle" :readonly="true"></Input>
                             <!-- <Select v-model="formComment.articleId" disabled>
                                 <Option v-for="item in articles" :value="item.id">{{item.title}}</Option>                            
                             </Select> -->
@@ -37,7 +37,7 @@
                 <Row>
                     <Col span="10">
                         <FormItem label="是否审核" prop="audit">
-                            <Select v-model="formComment.audit">
+                            <Select v-model="formComment.audit?'true':'false'">
                                 <Option value="true">是</Option>
                                 <Option value="false">否</Option>
                             </Select>
@@ -45,7 +45,7 @@
                     </Col>
                     <Col span="10">
                         <FormItem label="是否置顶" prop="toTop">
-                            <Select v-model="formComment.toTop">
+                            <Select v-model="formComment.toTop?'true':'false'">
                                 <Option value="true">是</Option>
                                 <Option value="false">否</Option>
                             </Select>
@@ -55,7 +55,7 @@
                 <Row>
                     <Col>
                         <FormItem label="回复内容" prop="replyContent">
-                            <Input v-model="formComment.replyContent" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="Enter something..."></Input>
+                            <Input v-model="formComment.replyContent" type="textarea" :autosize="{minRows: 0,maxRows: 5}" placeholder="Enter something..."></Input>
                         </FormItem>
                     </Col>
                 </Row>
@@ -75,7 +75,9 @@ export default {
         audit: false,
         toTop: false,
         userId: '',
+        nickname: '',
         articleId: '',
+        articleTitle: '',
         content: '',
         createTime: '',
         replyContent: ''
@@ -83,19 +85,21 @@ export default {
       ruleValidate: {
         replyContent: [
           { required: true, message: 'Please enter reply', trigger: 'blur' },
-          { type: 'string', min: 20, message: 'Introduce no less than 20 words', trigger: 'blur' }
+          { type: 'string', trigger: 'blur' }
         ]
       },
       isView: false
     }
   },
   methods: {
-    handleSubmit (name) {
-      this.$refs[name].validate((valid) => {
+    handleSubmit (formComment) {
+      this.$refs[formComment].validate((valid) => {
         if (valid) {
-          this.$Message.success('Success!')
-          this.$router.push({
-            name: 'comment'
+            this.$api.updateDiscuss(this.$route.params.commentId,this.formComment).then(res =>{
+                this.$Message.success('Success!')
+          })
+            this.$router.push({
+                name: 'comment'
           })
         } else {
           this.$Message.error('Fail!')
@@ -104,21 +108,20 @@ export default {
     },
     getDiscuss(id){
         this.$api.getDiscuss(id).then(res => {
-        console.log(res)
-        this.formComment = res.data
-      })
+            console.log(res)
+           let comment = res.data
+            this.$api.getArticle(comment.articleId).then(res => {
+                let article = res.data
+                this.formComment = comment;
+                this.formComment.nickname = comment.user.nickname
+                this.formComment.articleTitle = article.title
+                console.log(this.formComment)
+            })
+        })
     }
   },
   mounted () {
     this.getDiscuss(this.$route.params.commentId)
-    //   this.getDiscuss(localStorage.commentId);
-    // this.formComment.audit = localStorage.commentAudit
-    // this.formComment.toTop = localStorage.commentToTop
-    // this.formComment.userId = localStorage.commentUser
-    // this.formComment.articleId = localStorage.commentArticle
-    // this.formComment.content = localStorage.commentContent
-    // this.formComment.createTime = localStorage.commentTime
-    // this.formComment.replyContent = localStorage.commentReply
   }
 }
 </script>

@@ -74,6 +74,7 @@ export const otherRouter = {
 
         { path: 'games-add', title: '游戏新增', name: 'games-add', icon: 'compose', component: () => import('@/views/form/game/games-action.vue') },
         { path: 'games-edit', title: '游戏编辑', name: 'games-edit', icon: 'compose', component: () => import('@/views/form/game/games-action.vue') },
+        { path: 'games-config', title: '游戏配置', name: 'games-config', icon: 'compose', component: () => import('@/views/form/game/games-config.vue') }
     ]
 };
 
@@ -109,7 +110,7 @@ export const appRouter = [
         title: '游戏管理',
         component: Main,
         children: [
-            { path: 'games', title: '游戏列表', name: 'games', icon: 'compose', component: () => import('@/views/form/game/games.vue') }
+            { path: 'games', title: '游戏列表', name: 'games', icon: 'compose', component: () => import('@/views/form/game/games.vue') }            
         ]
     },
     {

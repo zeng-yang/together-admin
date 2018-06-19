@@ -123,6 +123,7 @@ export default {
       })
     },
     remove (index) {
+      this.$api.deleteArticle(this.articleData[index].id)
       this.articleData.splice(index, 1)
     },
     changePage (index) {

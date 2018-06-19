@@ -9,45 +9,49 @@
             <Card>
                 <Form ref="formBanner" :model="formBanner" :rules="ruleValidate" :label-width="80" >
                     <Row>
-                        <Col span="10">
+                        <Col>
                             <FormItem label="广告标题" prop="title">
-                                <Input v-model="formBanner.title" @on-blur="handleAdvertTitleBlur" icon="android-list"/>
+                                <Input v-model="formBanner.title" icon="android-list"/>
                             </FormItem>
                         </Col>
-                        <Col span="10">
+                        <Col>
                             <FormItem label="广告图片" prop="advertUrl">
                                 <Input v-model="formBanner.advertUrl"  icon="android-list"/>
                             </FormItem>
                         </Col>
-                        <Col span="10">
-                            <FormItem label="文章ID" prop="articleId">
-                                <Input v-model="formBanner.articleId"  icon="android-list"/>
+                        <Col>
+                            <FormItem label="所属文章" prop="id">
+                                <Select v-model="id" @on-change="select">
+                                    <Option v-for="item in articles" :value="item.id" :key="item.id">{{item.title}}</Option>                            
+                                </Select>
                             </FormItem>
                         </Col>
                     </Row>
+                    <Row :gutter="10">
+                        <!-- <Col span="14" class="image-editor-con">
+                            <div class="cropper">
+                                <img id="cropImg" alt="" :src="formBanner.bannerUrl">
+                            </div>
+                        </Col> -->
+                        <Col class="image-editor-con">
+                            <!-- <Row type="flex" justify="center" align="middle" class="image-editor-con-preview-con">
+                                <div id="preview"></div>
+                            </Row> -->
+                            <div class="image-editor-con-btn-con margin-top-10">
+                                <!-- <input type="file" accept="image/png, image/jpeg, image/gif, image/jpg" @change="handleChange" id="fileinput1" class="fileinput" />
+                                <label class="filelabel" for="fileinput1"><Icon type="image"></Icon>&nbsp;选择图片</label>
+                                <span><Button @click="handleCrop" type="primary" icon="crop">裁剪</Button></span> -->
+                                <FormItem>
+                                    <span><Button type="primary" class="common-button" @click="handleSaveBanner('formBanner')" icon="folder">保存</Button></span>
+                                </FormItem>
+                            </div>
+                            <!-- <Modal v-model="option.showCropedImage">
+                                <p slot="header">预览裁剪之后的图片</p>
+                                <img :src="option.cropedImg" alt="" v-if="option.showCropedImage" style="width: 100%;">
+                            </Modal> -->
+                        </Col>
+                    </Row>
                 </Form>
-                <Row :gutter="10">
-                    <Col span="14" class="image-editor-con">
-                        <div class="cropper">
-                            <img id="cropImg" alt="" :src="formBanner.bannerUrl">
-                        </div>
-                    </Col>
-                    <Col span="10" class="image-editor-con">
-                        <Row type="flex" justify="center" align="middle" class="image-editor-con-preview-con">
-                            <div id="preview"></div>
-                        </Row>
-                        <div class="image-editor-con1-btn-con margin-top-10">
-                            <input type="file" accept="image/png, image/jpeg, image/gif, image/jpg" @change="handleChange" id="fileinput1" class="fileinput" />
-                            <label class="filelabel" for="fileinput1"><Icon type="image"></Icon>&nbsp;选择图片</label>
-                            <span><Button @click="handleCrop" type="primary" icon="crop">裁剪</Button></span>
-                            <span><Button type="primary" class="common-button" @click="handleSaveBanner('formBanner')" icon="folder">保存</Button></span>
-                        </div>
-                        <Modal v-model="option.showCropedImage">
-                            <p slot="header">预览裁剪之后的图片</p>
-                            <img :src="option.cropedImg" alt="" v-if="option.showCropedImage" style="width: 100%;">
-                        </Modal>
-                    </Col>
-                </Row>
             </Card>
         </div>
     </div>
@@ -60,7 +64,8 @@ export default {
     name: 'image-editor',
     data () {
         return {
-           
+            articles: [],
+            id:'',
             formBanner: {
                 title: '',
                 articleId: '',
@@ -68,7 +73,6 @@ export default {
             },
             ruleValidate:{
                 title:[{required: true, message: '广告标题不能为空', trigger: 'blur'}],
-                articleId:[{required: true, message: '所属文章不能为空', trigger: 'blur'}],
                 advertUrl:[{required: true, message: '图片地址不能为空', trigger: 'blur'}]
             },
             cropper: {},
@@ -79,7 +83,6 @@ export default {
         };
     },
     methods: {
-        handleAdvertTitleBlur(){},
         handleChange (e) {
             let file = e.target.files[0];
             let reader = new FileReader();
@@ -97,10 +100,12 @@ export default {
         handleSaveBanner(formBanner){
             this.$refs[formBanner].validate((valid) => {
                 if (valid) {
+                    let routename = localStorage.actionType=='update'?'banner-edit':'banner-add'
                     if ('add' != localStorage.actionType ) {
-                        var id = localStorage.bannerId
+                        var id = localStorage.bannerId                        
                         this.$api.updateBanner(id, this.formBanner).then(res => {
                             this.$Message.success('Success!');
+                            this.$store.commit('removeTag', routename);
                             this.$router.push({
                                 name: 'banner'
                             });
@@ -108,36 +113,44 @@ export default {
                     } else {
                         this.$api.createBanner(this.formBanner).then(res => {
                             this.$Message.success('Success!');
+                            this.$store.commit('removeTag', routename);
                             this.$router.push({
                                 name: 'banner'
                             });
                         })
                     }
-                    
                     //保存广告
                 } else {
                     this.$Message.error('Fail!');
                 }
             })
-        }
+        },
+        select(item){
+                console.log(item)
+                this.formBanner.articleId =item
+            }
     },
     mounted () {
-        if ('add' != localStorage.actionType ) {
-            var id = localStorage.bannerId
-            this.formBanner.title = localStorage.bannerTitle;
-            this.formBanner.articleId = localStorage.bannerArticle;
-            this.formBanner.advertUrl = localStorage.bannerUrl;
-        }
-        let img = document.getElementById('cropImg');
-        this.cropper = new Cropper(img, {
-            dragMode: 'move',
-            preview: '#preview',
-            restore: false,
-            center: false,
-            highlight: false,
-            cropBoxMovable: false,
-            toggleDragModeOnDblclick: false
-        });
+        this.$api.getArticleList().then(res => {
+            this.articles = res.data
+            if ('add' != localStorage.actionType ) {
+                var id = localStorage.bannerId
+                this.formBanner.title = localStorage.bannerTitle
+                this.id = parseInt(localStorage.bannerArticle)
+                this.formBanner.advertUrl = localStorage.bannerUrl
+                console.log(this.formBanner)
+            }
+        })
+        // let img = document.getElementById('cropImg');
+        // this.cropper = new Cropper(img, {
+        //     dragMode: 'move',
+        //     preview: '#preview',
+        //     restore: false,
+        //     center: false,
+        //     highlight: false,
+        //     cropBoxMovable: false,
+        //     toggleDragModeOnDblclick: false
+        // });
     }
 };
 </script>

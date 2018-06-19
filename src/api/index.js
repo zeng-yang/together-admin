@@ -6,6 +6,7 @@ import banner from './banner'
 import discuss from './discuss'
 import system from './system'
 import game from './game'
+import upload from './upload'
 
 // axios设置默认值
 axios.defaults.timeout = 15000
@@ -22,7 +23,8 @@ const api = {
   ...banner,
   ...discuss,
   ...system,
-  ...game
+  ...game,
+  ...upload
 }
 
 // 注册vue插件

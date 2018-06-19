@@ -3,7 +3,7 @@ import qs from 'qs'
 
 const article = {
   getArticleList (params) {
-    var url = 'articles'
+    var url = '/articles'
     return axios.get(url, {params:params}).then(res => {
       return res
     })

@@ -163,6 +163,7 @@ export default {
     //   })
     // },
     remove (index) {
+      this.$api.deleteDiscuss(this.commentData[index].id)
       this.commentData.splice(index, 1)
     },
     getDiscussList (pageData) {

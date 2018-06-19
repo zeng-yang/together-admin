@@ -119,17 +119,20 @@ export default {
         if (localStorage.actionType != 'add') {
             var id = localStorage.articleId
             this.$api.updateArticle(id, this.article).then(res => {
+                let routename = localStorage.actionType=='update'?'article-edit':'article-add'
+                this.$store.commit('removeTag', routename);
                 this.$router.push({
                   name: 'articles'
                 })
             })
+        }else{
+          this.$api.createArticle(this.article).then(res => {
+              this.$store.commit('removeTag', this.$route.name);
+              this.$router.push({
+                name: 'articles'
+              })
+          })
         }
-        this.$api.createArticle(this.article).then(res => {
-            this.$router.push({
-              name: 'articles'
-            })
-        })
-        
       }
     }
   },
